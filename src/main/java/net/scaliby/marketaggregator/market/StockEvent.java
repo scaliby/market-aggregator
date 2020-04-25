@@ -11,9 +11,9 @@ import net.scaliby.marketaggregator.common.DoubleWrapper;
 public class StockEvent {
 
     @Builder.Default
-    private final Long id = 123L;
+    private final Long id = 1L;
     @Builder.Default
-    private final Long sequence = 123L;
+    private final Long sequence = 10L;
     @Builder.Default
     private final String type = "ASK";
     @Builder.Default
@@ -23,7 +23,7 @@ public class StockEvent {
     @Builder.Default
     private final Double amount = 10d;
     @Builder.Default
-    private final Long timestamp = 321L;
+    private final Long timestamp = 1000L;
     @Builder.Default
     private final String base = "BTC";
     @Builder.Default
