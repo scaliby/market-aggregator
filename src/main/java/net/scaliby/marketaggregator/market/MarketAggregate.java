@@ -2,14 +2,13 @@ package net.scaliby.marketaggregator.market;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RequiredArgsConstructor
-public class MarketAggregate<T> implements Market<T> {
+public class MarketAggregate implements Market {
 
     private final Integer timeWindow;
     private final MutableOrderBook ask;
@@ -17,10 +16,6 @@ public class MarketAggregate<T> implements Market<T> {
 
     @Getter
     private Long currentTime;
-
-    @Getter
-    @Setter
-    private T data;
 
     private Map<String, StockEvent> lastEventByType = new HashMap<>();
 

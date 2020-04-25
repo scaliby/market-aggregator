@@ -1,6 +1,6 @@
 package net.scaliby.marketaggregator.market;
 
-public interface Market<T> {
+public interface Market {
 
     OrderBook getAsk();
 
@@ -9,9 +9,5 @@ public interface Market<T> {
     Long getCurrentTime();
 
     StockEvent getLastEvent(String eventType);
-
-    T getData();
-
-    void setData(T data);
 
 }

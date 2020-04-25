@@ -10,7 +10,7 @@ import static junit.framework.TestCase.*;
 
 public class MarketAggregateTest {
 
-    private MarketAggregate<String> marketAggregate = new MarketAggregate<>(
+    private MarketAggregate marketAggregate = new MarketAggregate(
             1000,
             new BasicMutableOrderBook(false),
             new BasicMutableOrderBook(true)
