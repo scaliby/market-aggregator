@@ -16,3 +16,25 @@ dependencies {
     testCompile group: 'org.mockito', name: 'mockito-core', version: '3.3.3'
     testImplementation 'junit:junit:4.12'
 }
+
+subprojects {
+    apply plugin: "java"
+
+    group 'net.scaliby.marketaggregator'
+    version '1.0-SNAPSHOT'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        compileOnly 'org.projectlombok:lombok:1.18.12'
+        annotationProcessor 'org.projectlombok:lombok:1.18.12'
+
+        testCompileOnly 'org.projectlombok:lombok:1.18.12'
+        testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+
+        testCompile group: 'org.mockito', name: 'mockito-core', version: '3.3.3'
+        testImplementation 'junit:junit:4.12'
+    }
+}
