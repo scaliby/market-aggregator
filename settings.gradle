@@ -1,4 +1,5 @@
 rootProject.name = 'market-aggregator'
 include 'market-aggregator-core'
 include 'market-aggregator-handler'
+include 'market-aggregator-data-input'
 
