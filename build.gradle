@@ -1,3 +1,16 @@
+static def getBuildVersion() {
+    def releasePrefix = "refs/tags/v"
+    def ref = System.getenv("GITHUB_REF")
+    if(ref != null && ref.startsWith(releasePrefix)) {
+        return ref.substring(releasePrefix.length())
+    }
+    def sha = System.getenv("GITHUB_SHA")
+    if(sha != null) {
+        return sha
+    }
+    return "unknown"
+}
+
 plugins {
     id 'java'
     id 'maven-publish'
@@ -23,7 +36,7 @@ subprojects {
     apply plugin: "maven-publish"
 
     group 'net.scaliby.marketaggregator'
-    version '1.0-SNAPSHOT'
+    version getBuildVersion()
 
     repositories {
         mavenCentral()
