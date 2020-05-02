@@ -1,5 +1,6 @@
 plugins {
-    id 'java-library'
+    id 'java'
+    id 'maven-publish'
 }
 
 repositories {
@@ -19,6 +20,7 @@ dependencies {
 
 subprojects {
     apply plugin: "java"
+    apply plugin: "maven-publish"
 
     group 'net.scaliby.marketaggregator'
     version '1.0-SNAPSHOT'
@@ -36,5 +38,23 @@ subprojects {
 
         testCompile group: 'org.mockito', name: 'mockito-core', version: '3.3.3'
         testImplementation 'junit:junit:4.12'
+    }
+
+    publishing {
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/scaliby/market-aggregator")
+                credentials {
+                    username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                    password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+                }
+            }
+        }
+        publications {
+            gpr(MavenPublication) {
+                from(components.java)
+            }
+        }
     }
 }
