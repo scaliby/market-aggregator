@@ -3,8 +3,8 @@ package net.scaliby.marketaggregator.core.common;
 public class ConcurrentExecutionsCounter {
 
     private final Object lock = new Object();
-    private volatile int count = 0;
-    private volatile int maxCount = 0;
+    private int count = 0;
+    private int maxCount = 0;
 
     public int getMaxCount() {
         synchronized (lock) {

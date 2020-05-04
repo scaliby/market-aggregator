@@ -55,13 +55,34 @@ public class ChannelSchedulerTest {
         assertEquals(2, counter.getMaxCount());
     }
 
+    @Test(timeout = 2000L)
+    public void runningJobForTheSameKeyTwice_executesItSuccessfullyWithoutDeadlock_forQueueCapacityEqualToOne() throws InterruptedException {
+        // given
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        ChannelScheduler<String> channelScheduler = new ChannelScheduler<>(executorService);
+        channelScheduler.setQueueCapacity(1);
+        ConcurrentExecutionsCounter counter = new ConcurrentExecutionsCounter();
+        TestingChannelRunnable firstJob = new TestingChannelRunnable("BTC_USD", counter);
+        TestingChannelRunnable secondJob = new TestingChannelRunnable("ETH_USD", counter);
+
+        // when
+        channelScheduler.push(firstJob);
+        channelScheduler.push(secondJob);
+        channelScheduler.push(secondJob);
+        executorService.awaitTermination(1, TimeUnit.SECONDS);
+
+        // then
+        assertTrue(firstJob.isExecuted());
+        assertTrue(secondJob.isExecuted());
+    }
+
     @RequiredArgsConstructor
     private static class TestingChannelRunnable implements ChannelRunnable<String> {
         @Getter
         private final String channel;
         private final ConcurrentExecutionsCounter concurrentExecutionsCounter;
         @Getter
-        private boolean executed = false;
+        private volatile boolean executed = false;
 
         @Override
         @SneakyThrows

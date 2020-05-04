@@ -5,41 +5,28 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.SneakyThrows;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @RequiredArgsConstructor
 public class ChannelScheduler<K> {
 
     private final Executor executor;
 
-    private final Map<K, ChannelRunner> runners = new HashMap<>();
+    private final Map<K, ChannelRunner> runners = new ConcurrentHashMap<>();
 
     @Setter
     private int queueCapacity = 100_000;
 
-    @SneakyThrows
     public void push(ChannelRunnable<K> job) {
-        synchronized (runners) {
-            boolean alreadyRunning = runners.containsKey(job.getChannel());
-            ChannelRunner channelRunner = runners.computeIfAbsent(job.getChannel(), ChannelRunner::new);
-            channelRunner.push(job);
-            if (!alreadyRunning) {
-                executor.execute(channelRunner);
-            }
-        }
-    }
-
-    private void finalizeQueueRunner(ChannelRunner runner) {
-        synchronized (runners) {
-            if (runner.hasData()) {
-                executor.execute(runner);
-            } else {
-                runners.remove(runner.getKey());
-            }
+        ChannelRunner channelRunner = runners.computeIfAbsent(job.getChannel(), ChannelRunner::new);
+        channelRunner.push(job);
+        if (!channelRunner.isRunning()) {
+            executor.execute(channelRunner);
         }
     }
 
@@ -48,10 +35,15 @@ public class ChannelScheduler<K> {
 
         @Getter
         private final K key;
+        private final AtomicBoolean running = new AtomicBoolean(false);
         private final BlockingQueue<Runnable> workload = new ArrayBlockingQueue<>(queueCapacity);
 
         @Override
         public void run() {
+            boolean oldValue = running.getAndSet(true);
+            if (oldValue) {
+                return;
+            }
             while (hasData()) {
                 Runnable elem = workload.poll();
                 if (elem == null) {
@@ -59,7 +51,14 @@ public class ChannelScheduler<K> {
                 }
                 elem.run();
             }
-            finalizeQueueRunner(this);
+            running.set(false);
+            if (hasData()) {
+                run();
+            }
+        }
+
+        boolean isRunning() {
+            return running.get();
         }
 
         @SneakyThrows
