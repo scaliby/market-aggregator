@@ -1,7 +1,6 @@
 package net.scaliby.marketaggregator.core.input;
 
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import net.scaliby.marketaggregator.core.market.StockEvent;
 
 import java.util.ArrayList;
@@ -18,7 +17,6 @@ public class PairTickReader<K> {
 
     private StockEvent nextEvent = null;
 
-    @SneakyThrows
     public List<PairTick<K>> read() {
         if (nextEvent == null) {
             nextEvent = stockEventReader.read();

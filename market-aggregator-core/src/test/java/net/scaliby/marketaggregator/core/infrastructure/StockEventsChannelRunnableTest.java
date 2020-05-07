@@ -1,6 +1,6 @@
 package net.scaliby.marketaggregator.core.infrastructure;
 
-import net.scaliby.marketaggregator.core.handler.DataHandler;
+import net.scaliby.marketaggregator.core.handler.ListCollectingDataHandler;
 import net.scaliby.marketaggregator.core.handler.StockEventsHandler;
 import net.scaliby.marketaggregator.core.market.StockEvent;
 import org.junit.Test;
@@ -11,17 +11,14 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StockEventsChannelRunnableTest {
 
     @Mock
     private StockEventsHandler<Integer> stockEventsHandler;
-    @Mock
-    private DataHandler<Integer> dataHandler;
 
     @Test
     public void running_handlesEventsHandlerResultsWithDataHandler() {
@@ -32,6 +29,7 @@ public class StockEventsChannelRunnableTest {
                         .build()
         );
         List<Integer> eventsHandlingResult = Collections.singletonList(1337);
+        ListCollectingDataHandler<Integer> dataHandler = new ListCollectingDataHandler<>();
 
         StockEventsChannelRunnable<String, Integer> runnable = new StockEventsChannelRunnable<>(
                 "CHANNEL",
@@ -47,8 +45,6 @@ public class StockEventsChannelRunnableTest {
         runnable.run();
 
         // then
-        verify(dataHandler, times(1))
-                .handle(eventsHandlingResult);
+        assertEquals(eventsHandlingResult, dataHandler.getCollectedData());
     }
-
 }

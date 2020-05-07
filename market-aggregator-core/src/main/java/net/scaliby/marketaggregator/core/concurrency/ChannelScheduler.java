@@ -1,6 +1,5 @@
 package net.scaliby.marketaggregator.core.concurrency;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -23,7 +22,7 @@ public class ChannelScheduler<K> {
     private int queueCapacity = 100_000;
 
     public void push(ChannelRunnable<K> job) {
-        ChannelRunner channelRunner = runners.computeIfAbsent(job.getChannel(), ChannelRunner::new);
+        ChannelRunner channelRunner = runners.computeIfAbsent(job.getChannel(), k -> new ChannelRunner());
         channelRunner.push(job);
         if (!channelRunner.isRunning()) {
             executor.execute(channelRunner);
@@ -33,8 +32,6 @@ public class ChannelScheduler<K> {
     @RequiredArgsConstructor
     private final class ChannelRunner implements Runnable {
 
-        @Getter
-        private final K key;
         private final AtomicBoolean running = new AtomicBoolean(false);
         private final BlockingQueue<Runnable> workload = new ArrayBlockingQueue<>(queueCapacity);
 
