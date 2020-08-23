@@ -108,7 +108,18 @@ public class MarketAggregate implements Market {
                 .collect(Collectors.toList());
         PriceSummary.ByTypePriceSummary buyPriceSummary = getByTypePriceSummaryOrNull(buyEvents);
         PriceSummary.ByTypePriceSummary sellPriceSummary = getByTypePriceSummaryOrNull(sellEvents);
-        return Optional.of(PriceSummary.of(open, close, buyEvents.size(), sellEvents.size(), buyPriceSummary, sellPriceSummary));
+        PriceSummary.ByTypePriceSummary buySellPriceSummary = getByTypePriceSummaryOrNull(buySellEvents);
+        return Optional.of(
+                PriceSummary.of(
+                        open,
+                        close,
+                        buyEvents.size(),
+                        sellEvents.size(),
+                        buySellPriceSummary,
+                        buyPriceSummary,
+                        sellPriceSummary
+                )
+        );
     }
 
     private PriceSummary.ByTypePriceSummary getByTypePriceSummaryOrNull(List<StockEvent> events) {
@@ -128,7 +139,11 @@ public class MarketAggregate implements Market {
         double volume = events.stream()
                 .mapToDouble(StockEvent::getAmount)
                 .sum();
-        double avg = volume / events.size();
+        double priceSum = events.stream()
+                .map(StockEvent::getPrice)
+                .mapToDouble(DoubleWrapper::getValue)
+                .sum();
+        double avg = priceSum / events.size();
         double weightedAvg = events.stream()
                 .mapToDouble(event -> event.getPrice().getValue() * event.getAmount())
                 .sum() / events.size();

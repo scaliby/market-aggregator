@@ -16,8 +16,8 @@ public class StockEventsHandler<T> {
     public List<T> handle(List<StockEvent> events) {
         List<T> result = new ArrayList<>();
         while (!aggregate.canApply(events)) {
-            aggregate.tick();
             result.add(marketHandler.handle(aggregate));
+            aggregate.tick();
         }
         aggregate.apply(events);
         return result;

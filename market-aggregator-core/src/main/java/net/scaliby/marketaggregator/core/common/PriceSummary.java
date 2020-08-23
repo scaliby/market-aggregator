@@ -1,33 +1,44 @@
 package net.scaliby.marketaggregator.core.common;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 @Getter
-@RequiredArgsConstructor(staticName = "of")
+@AllArgsConstructor(staticName = "of")
 @ToString
 @EqualsAndHashCode
+@Builder
 public class PriceSummary {
-
-    private final double open;
-    private final double close;
-    private final int buyTransactionCount;
-    private final int sellTransactionCount;
-    private final ByTypePriceSummary buy;
-    private final ByTypePriceSummary sell;
+    @Builder.Default
+    private final double open = 10d;
+    @Builder.Default
+    private final double close = 20d;
+    @Builder.Default
+    private final int buyTransactionCount = 2;
+    @Builder.Default
+    private final int sellTransactionCount = 3;
+    @Builder.Default
+    private final ByTypePriceSummary buySell = ByTypePriceSummary.of(10d, 20d, 15d, 15d, 2d);
+    @Builder.Default
+    private final ByTypePriceSummary buy = ByTypePriceSummary.of(10d, 20d, 15d, 15d, 2d);
+    @Builder.Default
+    private final ByTypePriceSummary sell = ByTypePriceSummary.of(10d, 20d, 15d, 15d, 2d);
 
     @Getter
-    @RequiredArgsConstructor(staticName = "of")
+    @AllArgsConstructor(staticName = "of")
     @ToString
     @EqualsAndHashCode
+    @Builder
     public static class ByTypePriceSummary {
-        private final double min;
-        private final double max;
-        private final double avg;
-        private final double weightedAvg;
-        private final double volume;
+        @Builder.Default
+        private final double min = 10d;
+        @Builder.Default
+        private final double max = 20d;
+        @Builder.Default
+        private final double avg = 15d;
+        @Builder.Default
+        private final double weightedAvg = 15d;
+        @Builder.Default
+        private final double volume = 2d;
     }
 
 }
