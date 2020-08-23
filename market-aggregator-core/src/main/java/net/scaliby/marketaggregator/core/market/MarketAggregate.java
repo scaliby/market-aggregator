@@ -41,7 +41,7 @@ public class MarketAggregate implements Market {
         if (stockEvents.isEmpty()) {
             return true;
         }
-        Long timeDiff = stockEvents.get(0).getTimestamp() - currentTime;
+        long timeDiff = stockEvents.get(0).getTimestamp() - currentTime;
         return timeDiff < timeWindow;
     }
 
@@ -66,6 +66,8 @@ public class MarketAggregate implements Market {
 
     public void tick() {
         currentTime += timeWindow;
+        ask.tick();
+        bid.tick();
     }
 
     @Override

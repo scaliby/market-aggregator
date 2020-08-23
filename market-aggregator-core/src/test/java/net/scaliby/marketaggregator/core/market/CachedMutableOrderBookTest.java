@@ -3,6 +3,9 @@ package net.scaliby.marketaggregator.core.market;
 import net.scaliby.marketaggregator.core.common.DoubleWrapper;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -84,6 +87,246 @@ public class CachedMutableOrderBookTest {
 
         // then
         verify(delegate, atMostOnce()).getTotalAmountInBaseCurrency();
+    }
+
+    @Test
+    public void gettingChangesCount_returnsMapReturnedByDelegate() {
+        // given
+        double limitPrice = 10d;
+
+        Map<DoubleWrapper, Integer> expectedResult = new HashMap<>();
+        expectedResult.put(new DoubleWrapper(10), 10);
+
+        given(delegate.getChangesCount(limitPrice))
+                .willReturn(expectedResult);
+
+        // when
+        Map<DoubleWrapper, Integer> result = orderBook.getChangesCount(limitPrice);
+
+        // then
+        assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void gettingChangesCountAfterTicking_returnsNewValueReturnedByDelegate() {
+        // given
+        double limitPrice = 10d;
+
+        Map<DoubleWrapper, Integer> firstResult = new HashMap<>();
+        firstResult.put(new DoubleWrapper(10), 20);
+
+        Map<DoubleWrapper, Integer> secondResult = new HashMap<>();
+        secondResult.put(new DoubleWrapper(20), 30);
+
+        given(delegate.getChangesCount(limitPrice))
+                .willReturn(firstResult, secondResult);
+
+        // when
+        orderBook.getChangesCount(limitPrice);
+        orderBook.tick();
+        Map<DoubleWrapper, Integer> result = orderBook.getChangesCount(limitPrice);
+
+        // then
+        assertEquals(secondResult, result);
+    }
+
+    @Test
+    public void gettingChangesCountAfterHandling_returnsNewValueReturnedByDelegate() {
+        // given
+        double limitPrice = 10d;
+
+        Map<DoubleWrapper, Integer> firstResult = new HashMap<>();
+        firstResult.put(new DoubleWrapper(10), 20);
+
+        Map<DoubleWrapper, Integer> secondResult = new HashMap<>();
+        secondResult.put(new DoubleWrapper(20), 30);
+
+        given(delegate.getChangesCount(limitPrice))
+                .willReturn(firstResult, secondResult);
+
+        // when
+        orderBook.getChangesCount(limitPrice);
+        orderBook.handle(new DoubleWrapper(20), 10d);
+        Map<DoubleWrapper, Integer> result = orderBook.getChangesCount(limitPrice);
+
+        // then
+        assertEquals(secondResult, result);
+    }
+
+    @Test
+    public void gettingChangesCountTwiceWithTheSameParams_invokesDelegateOnlyOnce() {
+        // given
+        double limitPrice = 10d;
+
+        // when
+        orderBook.getChangesCount(limitPrice);
+        orderBook.getChangesCount(limitPrice);
+
+        // then
+        verify(delegate, atMostOnce()).getChangesCount(limitPrice);
+    }
+
+    @Test
+    public void gettingChangesAmount_returnsMapReturnedByDelegate() {
+        // given
+        double limitPrice = 10d;
+
+        Map<DoubleWrapper, Double> expectedResult = new HashMap<>();
+        expectedResult.put(new DoubleWrapper(10), 10d);
+
+        given(delegate.getChangesAmount(limitPrice))
+                .willReturn(expectedResult);
+
+        // when
+        Map<DoubleWrapper, Double> result = orderBook.getChangesAmount(limitPrice);
+
+        // then
+        assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void gettingChangesAmountAfterTicking_returnsNewValueReturnedByDelegate() {
+        // given
+        double limitPrice = 10d;
+
+        Map<DoubleWrapper, Double> firstResult = new HashMap<>();
+        firstResult.put(new DoubleWrapper(10), 20d);
+
+        Map<DoubleWrapper, Double> secondResult = new HashMap<>();
+        secondResult.put(new DoubleWrapper(20), 30d);
+
+        given(delegate.getChangesAmount(limitPrice))
+                .willReturn(firstResult, secondResult);
+
+        // when
+        orderBook.getChangesAmount(limitPrice);
+        orderBook.tick();
+        Map<DoubleWrapper, Double> result = orderBook.getChangesAmount(limitPrice);
+
+        // then
+        assertEquals(secondResult, result);
+    }
+
+    @Test
+    public void gettingChangesAmountAfterHandling_returnsNewValueReturnedByDelegate() {
+        // given
+        double limitPrice = 10d;
+
+        Map<DoubleWrapper, Double> firstResult = new HashMap<>();
+        firstResult.put(new DoubleWrapper(10), 20d);
+
+        Map<DoubleWrapper, Double> secondResult = new HashMap<>();
+        secondResult.put(new DoubleWrapper(20), 30d);
+
+        given(delegate.getChangesAmount(limitPrice))
+                .willReturn(firstResult, secondResult);
+
+        // when
+        orderBook.getChangesAmount(limitPrice);
+        orderBook.handle(new DoubleWrapper(20), 10d);
+        Map<DoubleWrapper, Double> result = orderBook.getChangesAmount(limitPrice);
+
+        // then
+        assertEquals(secondResult, result);
+    }
+
+    @Test
+    public void gettingChangesAmountTwiceWithTheSameParams_invokesDelegateOnlyOnce() {
+        // given
+        double limitPrice = 10d;
+
+        // when
+        orderBook.getChangesAmount(limitPrice);
+        orderBook.getChangesAmount(limitPrice);
+
+        // then
+        verify(delegate, atMostOnce()).getChangesAmount(limitPrice);
+    }
+
+    @Test
+    public void gettingOffers_returnsMapReturnedByDelegate() {
+        // given
+        double limitPrice = 10d;
+
+        Map<DoubleWrapper, Double> expectedResult = new HashMap<>();
+        expectedResult.put(new DoubleWrapper(10), 10d);
+
+        given(delegate.getOffers(limitPrice))
+                .willReturn(expectedResult);
+
+        // when
+        Map<DoubleWrapper, Double> result = orderBook.getOffers(limitPrice);
+
+        // then
+        assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void gettingOffersAfterTicking_returnsOldValueReturnedByDelegate() {
+        // given
+        double limitPrice = 10d;
+
+        Map<DoubleWrapper, Double> firstResult = new HashMap<>();
+        firstResult.put(new DoubleWrapper(10), 20d);
+
+        Map<DoubleWrapper, Double> secondResult = new HashMap<>();
+        secondResult.put(new DoubleWrapper(20), 30d);
+
+        given(delegate.getOffers(limitPrice))
+                .willReturn(firstResult, secondResult);
+
+        // when
+        orderBook.getOffers(limitPrice);
+        orderBook.tick();
+        Map<DoubleWrapper, Double> result = orderBook.getOffers(limitPrice);
+
+        // then
+        assertEquals(firstResult, result);
+    }
+
+    @Test
+    public void gettingOffersAfterHandling_returnsNewValueReturnedByDelegate() {
+        // given
+        double limitPrice = 10d;
+
+        Map<DoubleWrapper, Double> firstResult = new HashMap<>();
+        firstResult.put(new DoubleWrapper(10), 20d);
+
+        Map<DoubleWrapper, Double> secondResult = new HashMap<>();
+        secondResult.put(new DoubleWrapper(20), 30d);
+
+        given(delegate.getOffers(limitPrice))
+                .willReturn(firstResult, secondResult);
+
+        // when
+        orderBook.getOffers(limitPrice);
+        orderBook.handle(new DoubleWrapper(20), 10d);
+        Map<DoubleWrapper, Double> result = orderBook.getOffers(limitPrice);
+
+        // then
+        assertEquals(secondResult, result);
+    }
+
+    @Test
+    public void gettingOffersTwiceWithTheSameParams_invokesDelegateOnlyOnce() {
+        // given
+        double limitPrice = 10d;
+
+        // when
+        orderBook.getOffers(limitPrice);
+        orderBook.getOffers(limitPrice);
+
+        // then
+        verify(delegate, atMostOnce()).getOffers(limitPrice);
+    }
+
+    @Test
+    public void ticking_ticksDelegate() {
+        // when
+        orderBook.tick();
+
+        // then
+        verify(delegate, times(1)).tick();
     }
 
     @Test

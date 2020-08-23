@@ -2,6 +2,7 @@ package net.scaliby.marketaggregator.core.market;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import net.scaliby.marketaggregator.core.common.DoubleWrapper;
 
 import java.util.HashMap;
@@ -15,7 +16,15 @@ public class TestingMarketBuilder {
     private double askTotalAmountInBaseCurrency = 10d;
     private double bidTotalAmountInBaseCurrency = 20d;
     private Long time = 1000L;
-    private Map<String, StockEvent> eventByType = new HashMap<>();
+    private final Map<String, StockEvent> eventByType = new HashMap<>();
+
+    private final Map<DoubleWrapper, Integer> askChangesCount = new HashMap<>();
+    private final Map<DoubleWrapper, Double> askChangesAmount = new HashMap<>();
+    private final Map<DoubleWrapper, Double> askOffers = new HashMap<>();
+
+    private final Map<DoubleWrapper, Integer> bidChangesCount = new HashMap<>();
+    private final Map<DoubleWrapper, Double> bidChangesAmount = new HashMap<>();
+    private final Map<DoubleWrapper, Double> bidOffers = new HashMap<>();
 
     public static TestingMarketBuilder builder() {
         return new TestingMarketBuilder();
@@ -43,6 +52,20 @@ public class TestingMarketBuilder {
 
     public TestingMarketBuilder time(Long time) {
         this.time = time;
+        return this;
+    }
+
+    public TestingMarketBuilder withBidOffer(DoubleWrapper price, double amount, int changesCount, double changesAmount) {
+        bidOffers.put(price, amount);
+        bidChangesAmount.put(price, changesAmount);
+        bidChangesCount.put(price, changesCount);
+        return this;
+    }
+
+    public TestingMarketBuilder withAskOffer(DoubleWrapper price, double amount, int changesCount, double changesAmount) {
+        askOffers.put(price, amount);
+        askChangesAmount.put(price, changesAmount);
+        askChangesCount.put(price, changesCount);
         return this;
     }
 
@@ -76,30 +99,50 @@ public class TestingMarketBuilder {
     }
 
     private OrderBook buildBidOrderBook() {
-        return new OrderBook() {
-            @Override
-            public double getTotalAmountInBaseCurrency() {
-                return bidTotalAmountInBaseCurrency;
-            }
-
-            @Override
-            public double[] getMarketDepth(int samples, DoubleWrapper startingPrice, DoubleWrapper step) {
-                return bidMarketDepth;
-            }
-        };
+        return new PredefinedOrderBook(bidChangesCount, bidChangesAmount, bidOffers, bidMarketDepth, bidTotalAmountInBaseCurrency, true);
     }
 
     private OrderBook buildAskOrderBook() {
-        return new OrderBook() {
-            @Override
-            public double getTotalAmountInBaseCurrency() {
-                return askTotalAmountInBaseCurrency;
-            }
+        return new PredefinedOrderBook(askChangesCount, askChangesAmount, askOffers, askMarketDepth, askTotalAmountInBaseCurrency, false);
+    }
 
-            @Override
-            public double[] getMarketDepth(int samples, DoubleWrapper startingPrice, DoubleWrapper step) {
-                return askMarketDepth;
-            }
-        };
+    @RequiredArgsConstructor
+    private static class PredefinedOrderBook implements OrderBook {
+        private final Map<DoubleWrapper, Integer> changesCount;
+        private final Map<DoubleWrapper, Double> changesAmount;
+        private final Map<DoubleWrapper, Double> offers;
+        private final double[] marketDepth;
+        private final double totalAmountInBaseCurrency;
+        private final boolean inBaseCurrency;
+
+        @Override
+        public boolean isInBaseCurrency() {
+            return inBaseCurrency;
+        }
+
+        @Override
+        public double getTotalAmountInBaseCurrency() {
+            return totalAmountInBaseCurrency;
+        }
+
+        @Override
+        public Map<DoubleWrapper, Integer> getChangesCount(double limitPrice) {
+            return changesCount;
+        }
+
+        @Override
+        public Map<DoubleWrapper, Double> getChangesAmount(double limitPrice) {
+            return changesAmount;
+        }
+
+        @Override
+        public Map<DoubleWrapper, Double> getOffers(double limitPrice) {
+            return offers;
+        }
+
+        @Override
+        public double[] getMarketDepth(int samples, DoubleWrapper startingPrice, DoubleWrapper step) {
+            return marketDepth;
+        }
     }
 }
