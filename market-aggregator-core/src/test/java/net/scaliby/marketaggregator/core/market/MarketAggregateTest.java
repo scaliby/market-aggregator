@@ -1,16 +1,19 @@
 package net.scaliby.marketaggregator.core.market;
 
 import net.scaliby.marketaggregator.core.common.DoubleWrapper;
+import net.scaliby.marketaggregator.core.common.PriceSummary;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
 
 import static junit.framework.TestCase.*;
 
 public class MarketAggregateTest {
 
-    private MarketAggregate marketAggregate = new MarketAggregate(
+    private final MarketAggregate marketAggregate = new MarketAggregate(
             1000,
             new BasicMutableOrderBook(false),
             new BasicMutableOrderBook(true)
@@ -189,6 +192,220 @@ public class MarketAggregateTest {
         // then
         long currentTime = marketAggregate.getCurrentTime();
         assertEquals(currentTime, 100L);
+    }
+
+    @Test
+    public void tickingAggregateAfterApplyingSeriesOfStockEvents_makesGetPriceSummaryReturnEmptyOptional() {
+        // given
+        StockEvent buyEvent = StockEvent.builder()
+                .type("BUY")
+                .price(new DoubleWrapper(100))
+                .build();
+        StockEvent sellEvent = StockEvent.builder()
+                .type("SELL")
+                .price(new DoubleWrapper(200))
+                .build();
+
+        // when
+        marketAggregate.apply(buyEvent);
+        marketAggregate.apply(sellEvent);
+        marketAggregate.tick();
+
+        // then
+        Optional<PriceSummary> priceSummaryOptional = marketAggregate.getPriceSummary();
+        assertFalse(priceSummaryOptional.isPresent());
+    }
+
+    @Test
+    public void applyingSeriesOfStockEvents_makesGetPriceSummaryReturnValidOpenCloseValues_forBuySellEvents() {
+        // given
+        StockEvent buyEvent = StockEvent.builder()
+                .type("BUY")
+                .price(new DoubleWrapper(100))
+                .build();
+        StockEvent sellEvent = StockEvent.builder()
+                .type("SELL")
+                .price(new DoubleWrapper(200))
+                .build();
+
+        // when
+        marketAggregate.apply(buyEvent);
+        marketAggregate.apply(sellEvent);
+
+        // then
+        Optional<PriceSummary> priceSummaryOptional = marketAggregate.getPriceSummary();
+        assertTrue(priceSummaryOptional.isPresent());
+        PriceSummary priceSummary = priceSummaryOptional.get();
+        assertEquals(100d, priceSummary.getOpen(), 0.00001);
+        assertEquals(200d, priceSummary.getClose(), 0.00001);
+    }
+
+    @Test
+    public void applyingSeriesOfStockEvents_makesGetPriceSummaryReturnValidTransactionCountValues_forBuySellEvents() {
+        // given
+        StockEvent buyEvent = StockEvent.builder()
+                .type("BUY")
+                .price(new DoubleWrapper(100))
+                .build();
+        StockEvent sellEvent = StockEvent.builder()
+                .type("SELL")
+                .price(new DoubleWrapper(200))
+                .build();
+
+        // when
+        marketAggregate.apply(buyEvent);
+        marketAggregate.apply(sellEvent);
+
+        // then
+        Optional<PriceSummary> priceSummaryOptional = marketAggregate.getPriceSummary();
+        assertTrue(priceSummaryOptional.isPresent());
+        PriceSummary priceSummary = priceSummaryOptional.get();
+        assertEquals(1, priceSummary.getBuyTransactionCount());
+        assertEquals(1, priceSummary.getSellTransactionCount());
+    }
+
+    @Test
+    public void applyingSeriesOfSingleTypeStockEvents_makesGetPriceSummaryReturnNullOppositeTypePriceSummary_forBuyEvents() {
+        // given
+        StockEvent buyEvent = StockEvent.builder()
+                .type("BUY")
+                .price(new DoubleWrapper(1000))
+                .amount(10d)
+                .build();
+
+        // when
+        marketAggregate.apply(buyEvent);
+
+        // then
+        Optional<PriceSummary> priceSummaryOptional = marketAggregate.getPriceSummary();
+        assertTrue(priceSummaryOptional.isPresent());
+        PriceSummary priceSummary = priceSummaryOptional.get();
+        assertNull(priceSummary.getSell());
+    }
+
+    @Test
+    public void applyingSeriesOfSingleTypeStockEvents_makesGetPriceSummaryReturnNullOppositeTypePriceSummary_forSellEvents() {
+        // given
+        StockEvent sellEvent = StockEvent.builder()
+                .type("SELL")
+                .price(new DoubleWrapper(1000))
+                .amount(10d)
+                .build();
+
+        // when
+        marketAggregate.apply(sellEvent);
+
+        // then
+        Optional<PriceSummary> priceSummaryOptional = marketAggregate.getPriceSummary();
+        assertTrue(priceSummaryOptional.isPresent());
+        PriceSummary priceSummary = priceSummaryOptional.get();
+        assertNull(priceSummary.getBuy());
+    }
+
+    @Test
+    public void applyingSeriesOfStockEvents_makesGetPriceSummaryReturnValidBuyPriceSummary_forBuyEvents() {
+        // given
+        StockEvent firstBuyEvent = StockEvent.builder()
+                .type("BUY")
+                .price(new DoubleWrapper(1000))
+                .amount(10d)
+                .build();
+        StockEvent secondBuyEvent = StockEvent.builder()
+                .type("BUY")
+                .price(new DoubleWrapper(100))
+                .amount(100d)
+                .build();
+        StockEvent thirdBuyEvent = StockEvent.builder()
+                .type("BUY")
+                .price(new DoubleWrapper(10))
+                .amount(1000d)
+                .build();
+
+        // when
+        marketAggregate.apply(firstBuyEvent);
+        marketAggregate.apply(secondBuyEvent);
+        marketAggregate.apply(thirdBuyEvent);
+
+        // then
+        Optional<PriceSummary> priceSummaryOptional = marketAggregate.getPriceSummary();
+        assertTrue(priceSummaryOptional.isPresent());
+        PriceSummary priceSummary = priceSummaryOptional.get();
+        PriceSummary.ByTypePriceSummary buyPriceSummary = priceSummary.getBuy();
+        assertEquals(10d, buyPriceSummary.getMin());
+        assertEquals(1000d, buyPriceSummary.getMax());
+        assertEquals(1110d, buyPriceSummary.getVolume());
+        assertEquals(370d, buyPriceSummary.getAvg());
+        assertEquals(10000d, buyPriceSummary.getWeightedAvg());
+    }
+
+    @Test
+    public void applyingSeriesOfStockEvents_makesGetPriceSummaryReturnValidSellPriceSummary_forSellEvents() {
+        // given
+        StockEvent firstSellEvent = StockEvent.builder()
+                .type("SELL")
+                .price(new DoubleWrapper(1000))
+                .amount(10d)
+                .build();
+        StockEvent secondSellEvent = StockEvent.builder()
+                .type("SELL")
+                .price(new DoubleWrapper(100))
+                .amount(100d)
+                .build();
+        StockEvent thirdSellEvent = StockEvent.builder()
+                .type("SELL")
+                .price(new DoubleWrapper(10))
+                .amount(1000d)
+                .build();
+
+        // when
+        marketAggregate.apply(firstSellEvent);
+        marketAggregate.apply(secondSellEvent);
+        marketAggregate.apply(thirdSellEvent);
+
+        // then
+        Optional<PriceSummary> priceSummaryOptional = marketAggregate.getPriceSummary();
+        assertTrue(priceSummaryOptional.isPresent());
+        PriceSummary priceSummary = priceSummaryOptional.get();
+        PriceSummary.ByTypePriceSummary sellPriceSummary = priceSummary.getSell();
+        assertEquals(10d, sellPriceSummary.getMin());
+        assertEquals(1000d, sellPriceSummary.getMax());
+        assertEquals(1110d, sellPriceSummary.getVolume());
+        assertEquals(370d, sellPriceSummary.getAvg());
+        assertEquals(10000d, sellPriceSummary.getWeightedAvg());
+    }
+
+    @Test
+    public void tickingAggregate_makesGetChangesCountReturnEmptyMap_forAsk() {
+        // given
+        StockEvent stockEvent = StockEvent.builder()
+                .type("ASK")
+                .price(new DoubleWrapper(100))
+                .build();
+
+        // when
+        marketAggregate.apply(stockEvent);
+        marketAggregate.tick();
+
+        // then
+        Map<DoubleWrapper, Integer> changes = marketAggregate.getAsk().getChangesCount(100d);
+        assertTrue(changes.isEmpty());
+    }
+
+    @Test
+    public void tickingAggregate_makesGetChangesCountReturnEmptyMap_forBid() {
+        // given
+        StockEvent stockEvent = StockEvent.builder()
+                .type("BID")
+                .price(new DoubleWrapper(100))
+                .build();
+
+        // when
+        marketAggregate.apply(stockEvent);
+        marketAggregate.tick();
+
+        // then
+        Map<DoubleWrapper, Integer> changes = marketAggregate.getBid().getChangesCount(100d);
+        assertTrue(changes.isEmpty());
     }
 
     @Test

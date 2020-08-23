@@ -4,9 +4,11 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import net.scaliby.marketaggregator.core.common.DoubleWrapper;
+import net.scaliby.marketaggregator.core.common.PriceSummary;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TestingMarketBuilder {
@@ -15,6 +17,7 @@ public class TestingMarketBuilder {
     private double bidTotalAmountInBaseCurrency = 20d;
     private Long time = 1000L;
     private final Map<String, StockEvent> eventByType = new HashMap<>();
+    private PriceSummary priceSummary = null;
 
     private final Map<DoubleWrapper, Integer> askChangesCount = new HashMap<>();
     private final Map<DoubleWrapper, Double> askChangesAmount = new HashMap<>();
@@ -62,6 +65,11 @@ public class TestingMarketBuilder {
         return this;
     }
 
+    public TestingMarketBuilder withPriceSummary(PriceSummary priceSummary) {
+        this.priceSummary = priceSummary;
+        return this;
+    }
+
     public Market build() {
         return new Market() {
             @Override
@@ -82,6 +90,11 @@ public class TestingMarketBuilder {
             @Override
             public StockEvent getLastEvent(String eventType) {
                 return eventByType.get(eventType);
+            }
+
+            @Override
+            public Optional<PriceSummary> getPriceSummary() {
+                return Optional.ofNullable(priceSummary);
             }
         };
     }
