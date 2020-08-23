@@ -18,8 +18,6 @@ public class MarketSnapshotMarketHandlerTest {
         // given
         MarketSnapshotMarketHandler handler = new MarketSnapshotMarketHandler(1, true);
         Market market = TestingMarketBuilder.builder()
-                .bidMarketDepth(new double[]{1})
-                .askMarketDepth(new double[]{4})
                 .build();
 
         // when
@@ -39,8 +37,6 @@ public class MarketSnapshotMarketHandlerTest {
         MarketSnapshotMarketHandler handler = new MarketSnapshotMarketHandler(1, true);
         Market market = TestingMarketBuilder.builder()
                 .withStockEvent(buy)
-                .bidMarketDepth(new double[]{1})
-                .askMarketDepth(new double[]{4})
                 .build();
 
         // when
@@ -55,8 +51,6 @@ public class MarketSnapshotMarketHandlerTest {
         // given
         MarketSnapshotMarketHandler handler = new MarketSnapshotMarketHandler(2, true);
         Market market = TestingMarketBuilder.builder()
-                .bidMarketDepth(new double[]{1})
-                .askMarketDepth(new double[]{4})
                 .build();
 
         // when
@@ -72,8 +66,6 @@ public class MarketSnapshotMarketHandlerTest {
         // given
         MarketSnapshotMarketHandler handler = new MarketSnapshotMarketHandler(2, false);
         Market market = TestingMarketBuilder.builder()
-                .bidMarketDepth(new double[]{1})
-                .askMarketDepth(new double[]{4})
                 .build();
 
         // when
@@ -95,8 +87,6 @@ public class MarketSnapshotMarketHandlerTest {
         MarketSnapshotMarketHandler handler = new MarketSnapshotMarketHandler(2, true);
         Market market = TestingMarketBuilder.builder()
                 .withStockEvent(buy)
-                .bidMarketDepth(new double[]{1})
-                .askMarketDepth(new double[]{4})
                 .build();
 
         // when
@@ -112,8 +102,6 @@ public class MarketSnapshotMarketHandlerTest {
         // given
         MarketSnapshotMarketHandler handler = new MarketSnapshotMarketHandler(1, false);
         Market market = TestingMarketBuilder.builder()
-                .bidMarketDepth(new double[]{1})
-                .askMarketDepth(new double[]{4})
                 .build();
 
         // when
@@ -133,8 +121,6 @@ public class MarketSnapshotMarketHandlerTest {
         MarketSnapshotMarketHandler handler = new MarketSnapshotMarketHandler(1, false);
         Market market = TestingMarketBuilder.builder()
                 .withStockEvent(buy)
-                .bidMarketDepth(new double[]{1})
-                .askMarketDepth(new double[]{4})
                 .build();
 
         // when
@@ -149,8 +135,6 @@ public class MarketSnapshotMarketHandlerTest {
         // given
         MarketSnapshotMarketHandler handler = new MarketSnapshotMarketHandler(2, false);
         Market market = TestingMarketBuilder.builder()
-                .bidMarketDepth(new double[]{1})
-                .askMarketDepth(new double[]{4})
                 .build();
 
         // when
@@ -171,8 +155,6 @@ public class MarketSnapshotMarketHandlerTest {
         MarketSnapshotMarketHandler handler = new MarketSnapshotMarketHandler(2, false);
         Market market = TestingMarketBuilder.builder()
                 .withStockEvent(buy)
-                .bidMarketDepth(new double[]{1})
-                .askMarketDepth(new double[]{4})
                 .build();
 
         // when
@@ -193,8 +175,6 @@ public class MarketSnapshotMarketHandlerTest {
         MarketSnapshotMarketHandler handler = new MarketSnapshotMarketHandler(10, true);
         Market market = TestingMarketBuilder.builder()
                 .withStockEvent(buy)
-                .bidMarketDepth(new double[]{1})
-                .askMarketDepth(new double[]{4})
                 .build();
 
         // when
@@ -212,8 +192,6 @@ public class MarketSnapshotMarketHandlerTest {
                 .price(new DoubleWrapper(10))
                 .build();
         Market market = TestingMarketBuilder.builder()
-                .bidMarketDepth(new double[]{1, 2, 3})
-                .askMarketDepth(new double[]{4, 5, 6})
                 .withStockEvent(stockEvent)
                 .build();
         handler.handle(market);

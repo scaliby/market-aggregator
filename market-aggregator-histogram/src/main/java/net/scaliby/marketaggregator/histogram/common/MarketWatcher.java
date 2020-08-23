@@ -29,8 +29,11 @@ public class MarketWatcher {
     }
 
     public void tick(Market market) {
-        double[] ask = market.getAsk().getMarketDepth(size, startingPrice, DoubleWrapper.ONE);
-        double[] bid = market.getBid().getMarketDepth(size, startingPrice, DoubleWrapper.ONE);
+        MarketDepthCalculator askCalculator = new MarketDepthCalculator(market.getAsk());
+        MarketDepthCalculator bidCalculator = new MarketDepthCalculator(market.getBid());
+        DoubleWrapper step = DoubleWrapper.ONE;
+        double[] ask = askCalculator.getMarketDepth(size, startingPrice, step);
+        double[] bid = bidCalculator.getMarketDepth(size, startingPrice, step);
         asks.add(ask);
         bids.add(bid);
         while (asks.size() > size) {

@@ -14,10 +14,4 @@ public interface OrderBook {
     Map<DoubleWrapper, Double> getChangesAmount(double depth);
 
     Map<DoubleWrapper, Double> getOffers(double depth);
-
-    /**
-     * @deprecated Use getOffers(double depth) instead and calculate market depth on your own
-     */
-    @Deprecated
-    double[] getMarketDepth(int samples, DoubleWrapper startingPrice, DoubleWrapper step);
 }

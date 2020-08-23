@@ -6,7 +6,8 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class BasicMutableOrderBookTest {
 
@@ -370,105 +371,6 @@ public class BasicMutableOrderBookTest {
         expectedResult.put(new DoubleWrapper(30), 30d);
         expectedResult.put(new DoubleWrapper(20), 20d);
         assertEquals(expectedResult, result);
-    }
-
-
-    @Test
-    public void gettingMarketDepthWithoutHavingToSkipEntry_returnsValidArray_forNotInverseOrderBook() {
-        // given
-        BasicMutableOrderBook orderBook = new BasicMutableOrderBook(false);
-
-        // when
-        orderBook.handle(new DoubleWrapper(10), 10d);
-        orderBook.handle(new DoubleWrapper(15), 5d);
-        double[] result = orderBook.getMarketDepth(6, new DoubleWrapper(5), new DoubleWrapper(3));
-
-        // then
-        //                       price points: 5  8  11  14  17  20
-        double[] expectedResult = new double[]{0, 0, 10, 10, 15, 15};
-        assertArrayEquals(expectedResult, result, 0.01);
-    }
-
-    @Test
-    public void gettingMarketDepthWithHavingToSkipEntry_returnsValidArray_forNotInverseOrderBook() {
-        // given
-        BasicMutableOrderBook orderBook = new BasicMutableOrderBook(false);
-
-        // when
-        orderBook.handle(new DoubleWrapper(9), 10d);
-        orderBook.handle(new DoubleWrapper(10), 5d);
-        double[] result = orderBook.getMarketDepth(6, new DoubleWrapper(5), new DoubleWrapper(3));
-
-        // then
-        //                       price points: 5  8  11  14  17  20
-        double[] expectedResult = new double[]{0, 0, 15, 15, 15, 15};
-        assertArrayEquals(expectedResult, result, 0.01);
-    }
-
-    @Test
-    public void gettingMarketDepthWithoutHavingToSkipEntry_returnsValidArray_forInverseOrderBook() {
-        // given
-        BasicMutableOrderBook orderBook = new BasicMutableOrderBook(true);
-
-        // when
-        orderBook.handle(new DoubleWrapper(15), 10d);
-        orderBook.handle(new DoubleWrapper(10), 5d);
-        double[] result = orderBook.getMarketDepth(6, new DoubleWrapper(20), new DoubleWrapper(3));
-
-        // then
-        //                       price points: 20 17 14  11   8   5
-        double[] expectedResult = new double[]{0, 0, 10, 10, 15, 15};
-        assertArrayEquals(expectedResult, result, 0.01);
-    }
-
-    @Test
-    public void gettingMarketDepthWithHavingToSkipEntry_returnsValidArray_forInverseOrderBook() {
-        // given
-        BasicMutableOrderBook orderBook = new BasicMutableOrderBook(true);
-
-        // when
-        orderBook.handle(new DoubleWrapper(16), 10d);
-        orderBook.handle(new DoubleWrapper(15), 5d);
-        double[] result = orderBook.getMarketDepth(6, new DoubleWrapper(20), new DoubleWrapper(3));
-
-        // then
-        //                       price points: 20 17 14  11   8   5
-        double[] expectedResult = new double[]{0, 0, 15, 15, 15, 15};
-        assertArrayEquals(expectedResult, result, 0.01);
-    }
-
-    @Test
-    public void gettingMarketDepthWithNullValueEntryHandled_returnsValidArrayWithRemovedPricePoint_forInverseNotOrderBook() {
-        // given
-        BasicMutableOrderBook orderBook = new BasicMutableOrderBook(false);
-
-        // when
-        orderBook.handle(new DoubleWrapper(10), 10d);
-        orderBook.handle(new DoubleWrapper(10), null);
-        orderBook.handle(new DoubleWrapper(15), 20d);
-        double[] result = orderBook.getMarketDepth(6, new DoubleWrapper(5), new DoubleWrapper(3));
-
-        // then
-        //                       price points: 5  8  11 14 17  20
-        double[] expectedResult = new double[]{0, 0, 0, 0, 20, 20};
-        assertArrayEquals(expectedResult, result, 0.01);
-    }
-
-    @Test
-    public void gettingMarketDepthWithNullValueEntryHandled_returnsValidArrayWithRemovedPricePoint_forInverseOrderBook() {
-        // given
-        BasicMutableOrderBook orderBook = new BasicMutableOrderBook(true);
-
-        // when
-        orderBook.handle(new DoubleWrapper(10), 10d);
-        orderBook.handle(new DoubleWrapper(10), null);
-        orderBook.handle(new DoubleWrapper(15), 20d);
-        double[] result = orderBook.getMarketDepth(6, new DoubleWrapper(20), new DoubleWrapper(3));
-
-        // then
-        //                      price points:  20 17 14  11   8   5
-        double[] expectedResult = new double[]{0, 0, 20, 20, 20, 20};
-        assertArrayEquals(expectedResult, result, 0.01);
     }
 
 }

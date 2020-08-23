@@ -2,7 +2,12 @@ package net.scaliby.marketaggregator.core.market;
 
 import net.scaliby.marketaggregator.core.common.DoubleWrapper;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
+
+import static net.scaliby.marketaggregator.core.common.ComparatorCommon.getComparator;
 
 public class BasicMutableOrderBook implements MutableOrderBook {
 
@@ -16,13 +21,6 @@ public class BasicMutableOrderBook implements MutableOrderBook {
         this.offers = new TreeMap<>(getComparator(inverse));
         this.changesAmount = new TreeMap<>(getComparator(inverse));
         this.changesCount = new TreeMap<>(getComparator(inverse));
-    }
-
-    private static Comparator<DoubleWrapper> getComparator(boolean inverse) {
-        if (inverse) {
-            return Comparator.reverseOrder();
-        }
-        return Comparator.naturalOrder();
     }
 
     @Override
@@ -82,38 +80,4 @@ public class BasicMutableOrderBook implements MutableOrderBook {
         NavigableMap<DoubleWrapper, T> head = map.headMap(new DoubleWrapper(limitPrice), true);
         return Collections.unmodifiableMap(head);
     }
-
-    @Override
-    public double[] getMarketDepth(int samples, DoubleWrapper startingPrice, DoubleWrapper step) {
-        double toKey = getPricePoint(step.getValue(), samples - 1, startingPrice.getValue());
-        NavigableMap<DoubleWrapper, Double> data = new TreeMap<>(offers.headMap(new DoubleWrapper(toKey), true));
-
-        Map.Entry<DoubleWrapper, Double> firstEntry;
-        Double currentAmount = 0D;
-        double[] result = new double[samples];
-        for (int i = 0; i < samples; i++) {
-            double currentPricePoint = getPricePoint(step.getValue(), i, startingPrice.getValue());
-            while (!data.isEmpty() && shouldProceedToNextEntry(data.firstEntry().getKey().getValue(), currentPricePoint)) {
-                firstEntry = data.pollFirstEntry();
-                currentAmount += firstEntry.getValue();
-            }
-            result[i] = currentAmount;
-        }
-        return result;
-    }
-
-    private boolean shouldProceedToNextEntry(double key, double currentPricePoint) {
-        if (inverse) {
-            return key >= currentPricePoint;
-        }
-        return key <= currentPricePoint;
-    }
-
-    private double getPricePoint(double step, int i, double startingPrice) {
-        if (inverse) {
-            return startingPrice - (step * i);
-        }
-        return startingPrice + (step * i);
-    }
-
 }

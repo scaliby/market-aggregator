@@ -11,8 +11,6 @@ import java.util.Map;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TestingMarketBuilder {
 
-    private double[] askMarketDepth = new double[]{1, 2};
-    private double[] bidMarketDepth = new double[]{4, 5};
     private double askTotalAmountInBaseCurrency = 10d;
     private double bidTotalAmountInBaseCurrency = 20d;
     private Long time = 1000L;
@@ -28,16 +26,6 @@ public class TestingMarketBuilder {
 
     public static TestingMarketBuilder builder() {
         return new TestingMarketBuilder();
-    }
-
-    public TestingMarketBuilder askMarketDepth(double[] askMarketDepth) {
-        this.askMarketDepth = askMarketDepth;
-        return this;
-    }
-
-    public TestingMarketBuilder bidMarketDepth(double[] bidMarketDepth) {
-        this.bidMarketDepth = bidMarketDepth;
-        return this;
     }
 
     public TestingMarketBuilder askTotalAmountInBaseCurrency(double askTotalAmountInBaseCurrency) {
@@ -99,11 +87,11 @@ public class TestingMarketBuilder {
     }
 
     private OrderBook buildBidOrderBook() {
-        return new PredefinedOrderBook(bidChangesCount, bidChangesAmount, bidOffers, bidMarketDepth, bidTotalAmountInBaseCurrency, true);
+        return new PredefinedOrderBook(bidChangesCount, bidChangesAmount, bidOffers, bidTotalAmountInBaseCurrency, true);
     }
 
     private OrderBook buildAskOrderBook() {
-        return new PredefinedOrderBook(askChangesCount, askChangesAmount, askOffers, askMarketDepth, askTotalAmountInBaseCurrency, false);
+        return new PredefinedOrderBook(askChangesCount, askChangesAmount, askOffers, askTotalAmountInBaseCurrency, false);
     }
 
     @RequiredArgsConstructor
@@ -111,7 +99,6 @@ public class TestingMarketBuilder {
         private final Map<DoubleWrapper, Integer> changesCount;
         private final Map<DoubleWrapper, Double> changesAmount;
         private final Map<DoubleWrapper, Double> offers;
-        private final double[] marketDepth;
         private final double totalAmountInBaseCurrency;
         private final boolean inBaseCurrency;
 
@@ -138,11 +125,6 @@ public class TestingMarketBuilder {
         @Override
         public Map<DoubleWrapper, Double> getOffers(double limitPrice) {
             return offers;
-        }
-
-        @Override
-        public double[] getMarketDepth(int samples, DoubleWrapper startingPrice, DoubleWrapper step) {
-            return marketDepth;
         }
     }
 }

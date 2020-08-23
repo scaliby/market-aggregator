@@ -1,6 +1,5 @@
 package net.scaliby.marketaggregator.core.market;
 
-import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import net.scaliby.marketaggregator.core.common.DoubleWrapper;
 
@@ -11,7 +10,6 @@ import java.util.Map;
 public class CachedMutableOrderBook implements MutableOrderBook {
     private final MutableOrderBook delegate;
 
-    private final Map<CacheKey, double[]> marketDepthCache = new HashMap<>();
     private final Map<Double, Map<DoubleWrapper, Integer>> changesCountCache = new HashMap<>();
     private final Map<Double, Map<DoubleWrapper, Double>> changesAmountCache = new HashMap<>();
     private final Map<Double, Map<DoubleWrapper, Double>> offersCache = new HashMap<>();
@@ -19,7 +17,6 @@ public class CachedMutableOrderBook implements MutableOrderBook {
 
     @Override
     public void handle(DoubleWrapper price, Double amount) {
-        marketDepthCache.clear();
         changesCountCache.clear();
         changesAmountCache.clear();
         offersCache.clear();
@@ -60,19 +57,5 @@ public class CachedMutableOrderBook implements MutableOrderBook {
     @Override
     public Map<DoubleWrapper, Double> getOffers(double limitPrice) {
         return offersCache.computeIfAbsent(limitPrice, delegate::getOffers);
-    }
-
-    @Override
-    public double[] getMarketDepth(int samples, DoubleWrapper startingPrice, DoubleWrapper step) {
-        CacheKey cacheKey = new CacheKey(samples, startingPrice, step);
-        return marketDepthCache.computeIfAbsent(cacheKey, key -> delegate.getMarketDepth(samples, startingPrice, step));
-    }
-
-    @RequiredArgsConstructor
-    @EqualsAndHashCode
-    private static class CacheKey {
-        private final int samples;
-        private final DoubleWrapper startingPrice;
-        private final DoubleWrapper step;
     }
 }
