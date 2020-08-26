@@ -22,11 +22,11 @@ import static org.mockito.Mockito.verify;
 public class StockEventsHandlerTest {
 
     @Mock
-    private MarketAggregate marketAggregate;
+    private MarketAggregate<String> marketAggregate;
     @Mock
-    private MarketHandler<Integer> marketHandler;
+    private MarketHandler<String, Integer> marketHandler;
     @InjectMocks
-    private StockEventsHandler<Integer> stockEventsHandler;
+    private StockEventsHandler<String, Integer> stockEventsHandler;
 
     @Test
     public void handling_callsAggregateTickUntilMarketCanNotApplyEvents() {

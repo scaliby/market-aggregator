@@ -10,8 +10,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RequiredArgsConstructor
-public class MarketAggregate implements Market {
+public class MarketAggregate<T> implements Market<T> {
 
+    @Getter
+    private final T key;
     private final Integer timeWindow;
     private final MutableOrderBook ask;
     private final MutableOrderBook bid;

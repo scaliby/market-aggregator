@@ -36,7 +36,7 @@ public class BootstrapTest {
             .withStockEvent(StockEvent.builder().sequence(2L).build())
             .build();
     @Mock
-    private StockEventsHandler<Integer> stockEventsHandler;
+    private StockEventsHandler<String, Integer> stockEventsHandler;
 
     @Test
     public void running_passAggregatedDataToHandlerUntilEnd() throws InterruptedException {
@@ -46,7 +46,7 @@ public class BootstrapTest {
                 .executor(executor)
                 .stockEventReader(stockEventReader)
                 .dataHandlerFactory(() -> dataHandler)
-                .stockEventsHandlerFactory(() -> stockEventsHandler)
+                .stockEventsHandlerFactory((key) -> stockEventsHandler)
                 .timer(timer)
                 .build();
 

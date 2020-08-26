@@ -10,7 +10,7 @@ import net.scaliby.marketaggregator.histogram.common.MarketSnapshot;
 
 import java.util.List;
 
-public class MarketSnapshotStockEventsHandlerFactory implements StockEventsHandlerFactory<List<MarketSnapshot>> {
+public class MarketSnapshotStockEventsHandlerFactory<K> implements StockEventsHandlerFactory<K, List<MarketSnapshot>> {
 
     @Setter
     private int size = 128;
@@ -18,12 +18,13 @@ public class MarketSnapshotStockEventsHandlerFactory implements StockEventsHandl
     private boolean emitOnlyOnTrade = false;
 
     @Override
-    public StockEventsHandler<List<MarketSnapshot>> create() {
-        MarketAggregate marketAggregate = MarketAggregateBuilder.builder()
+    public StockEventsHandler<K, List<MarketSnapshot>> create(K key) {
+        MarketAggregate<K> marketAggregate = MarketAggregateBuilder.<K>builder()
+                .key(key)
                 .build();
-        return StockEventsHandlerBuilder.<List<MarketSnapshot>>builder()
+        return StockEventsHandlerBuilder.<K, List<MarketSnapshot>>builder()
                 .marketAggregate(marketAggregate)
-                .marketHandler(new MarketSnapshotMarketHandler(size, emitOnlyOnTrade))
+                .marketHandler(new MarketSnapshotMarketHandler<>(size, emitOnlyOnTrade))
                 .build();
     }
 }

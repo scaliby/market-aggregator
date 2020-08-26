@@ -24,7 +24,7 @@ public class Bootstrap<K, V> implements Runnable {
     private final KeyResolver<K> keyResolver;
     private final StockEventReader stockEventReader;
     private final Executor executor;
-    private final StockEventsHandlerFactory<V> stockEventsHandlerFactory;
+    private final StockEventsHandlerFactory<K, V> stockEventsHandlerFactory;
     private final DataHandlerFactory<V> dataHandlerFactory;
 
     @Override

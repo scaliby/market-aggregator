@@ -8,14 +8,15 @@ import net.scaliby.marketaggregator.core.market.MarketAggregateBuilder;
 
 import java.util.Optional;
 
-public class AveragePriceStockEventsHandlerFactory implements StockEventsHandlerFactory<Optional<Double>> {
+public class AveragePriceStockEventsHandlerFactory<K> implements StockEventsHandlerFactory<K, Optional<Double>> {
     @Override
-    public StockEventsHandler<Optional<Double>> create() {
-        MarketAggregate marketAggregate = MarketAggregateBuilder.builder()
+    public StockEventsHandler<K, Optional<Double>> create(K key) {
+        MarketAggregate<K> marketAggregate = MarketAggregateBuilder.<K>builder()
+                .key(key)
                 .build();
-        return StockEventsHandlerBuilder.<Optional<Double>>builder()
+        return StockEventsHandlerBuilder.<K, Optional<Double>>builder()
                 .marketAggregate(marketAggregate)
-                .marketHandler(new AveragePriceMarketHandler())
+                .marketHandler(new AveragePriceMarketHandler<>())
                 .build();
     }
 }

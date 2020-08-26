@@ -4,7 +4,9 @@ import net.scaliby.marketaggregator.core.common.PriceSummary;
 
 import java.util.Optional;
 
-public interface Market {
+public interface Market<T> {
+
+    T getKey();
 
     OrderBook getAsk();
 

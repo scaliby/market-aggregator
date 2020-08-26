@@ -18,7 +18,7 @@ import static org.mockito.BDDMockito.given;
 public class StockEventsChannelRunnableTest {
 
     @Mock
-    private StockEventsHandler<Integer> stockEventsHandler;
+    private StockEventsHandler<String, Integer> stockEventsHandler;
 
     @Test
     public void running_handlesEventsHandlerResultsWithDataHandler() {

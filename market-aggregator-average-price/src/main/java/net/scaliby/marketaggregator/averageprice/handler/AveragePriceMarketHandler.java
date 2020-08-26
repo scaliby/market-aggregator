@@ -6,9 +6,9 @@ import net.scaliby.marketaggregator.core.market.Market;
 
 import java.util.Optional;
 
-public class AveragePriceMarketHandler implements MarketHandler<Optional<Double>> {
+public class AveragePriceMarketHandler<K> implements MarketHandler<K, Optional<Double>> {
     @Override
-    public Optional<Double> handle(Market market) {
+    public Optional<Double> handle(Market<K> market) {
         return market.getPriceSummary()
                 .map(PriceSummary::getBuySell)
                 .map(PriceSummary.ByTypePriceSummary::getAvg);

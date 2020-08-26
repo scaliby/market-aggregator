@@ -13,7 +13,8 @@ import static junit.framework.TestCase.*;
 
 public class MarketAggregateTest {
 
-    private final MarketAggregate marketAggregate = new MarketAggregate(
+    private final MarketAggregate<String> marketAggregate = new MarketAggregate<>(
+            "BTC_USD",
             1000,
             new BasicMutableOrderBook(false),
             new BasicMutableOrderBook(true)

@@ -17,8 +17,8 @@ import static org.junit.Assert.assertTrue;
 
 public class MarketAggregatorIntegrationTest {
 
-    private StockEventsHandler<Optional<Double>> stockEventsHandler = StockEventsHandlerBuilder.<Optional<Double>>builder()
-            .marketHandler(new AveragePriceMarketHandler())
+    private final StockEventsHandler<String, Optional<Double>> stockEventsHandler = StockEventsHandlerBuilder.<String, Optional<Double>>builder()
+            .marketHandler(new AveragePriceMarketHandler<>())
             .build();
 
     @Test

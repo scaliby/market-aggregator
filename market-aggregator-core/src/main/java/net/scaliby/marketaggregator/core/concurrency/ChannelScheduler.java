@@ -64,7 +64,7 @@ public class ChannelScheduler<K> {
         }
 
         boolean hasData() {
-            return workload.size() > 0;
+            return !workload.isEmpty();
         }
 
     }

@@ -1,7 +1,7 @@
 package net.scaliby.marketaggregator.core.handler;
 
-public interface StockEventsHandlerFactory<V> {
+public interface StockEventsHandlerFactory<K, V> {
 
-    StockEventsHandler<V> create();
+    StockEventsHandler<K, V> create(K key);
 
 }

@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class StockEventsHandler<T> {
+public class StockEventsHandler<K, T> {
 
-    private final MarketAggregate aggregate;
-    private final MarketHandler<T> marketHandler;
+    private final MarketAggregate<K> aggregate;
+    private final MarketHandler<K, T> marketHandler;
 
     public List<T> handle(List<StockEvent> events) {
         List<T> result = new ArrayList<>();

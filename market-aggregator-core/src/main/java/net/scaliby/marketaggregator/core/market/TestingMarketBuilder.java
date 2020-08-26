@@ -11,13 +11,14 @@ import java.util.Map;
 import java.util.Optional;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class TestingMarketBuilder {
+public class TestingMarketBuilder<K> {
 
     private double askTotalAmountInBaseCurrency = 10d;
     private double bidTotalAmountInBaseCurrency = 20d;
     private Long time = 1000L;
     private final Map<String, StockEvent> eventByType = new HashMap<>();
     private PriceSummary priceSummary = null;
+    private K key;
 
     private final Map<DoubleWrapper, Integer> askChangesCount = new HashMap<>();
     private final Map<DoubleWrapper, Double> askChangesAmount = new HashMap<>();
@@ -27,51 +28,61 @@ public class TestingMarketBuilder {
     private final Map<DoubleWrapper, Double> bidChangesAmount = new HashMap<>();
     private final Map<DoubleWrapper, Double> bidOffers = new HashMap<>();
 
-    public static TestingMarketBuilder builder() {
-        return new TestingMarketBuilder();
+    public static <K> TestingMarketBuilder<K> builder() {
+        return new TestingMarketBuilder<>();
     }
 
-    public TestingMarketBuilder askTotalAmountInBaseCurrency(double askTotalAmountInBaseCurrency) {
+    public TestingMarketBuilder<K> key(K key) {
+        this.key = key;
+        return this;
+    }
+
+    public TestingMarketBuilder<K> askTotalAmountInBaseCurrency(double askTotalAmountInBaseCurrency) {
         this.askTotalAmountInBaseCurrency = askTotalAmountInBaseCurrency;
         return this;
     }
 
-    public TestingMarketBuilder bidTotalAmountInBaseCurrency(double bidTotalAmountInBaseCurrency) {
+    public TestingMarketBuilder<K> bidTotalAmountInBaseCurrency(double bidTotalAmountInBaseCurrency) {
         this.bidTotalAmountInBaseCurrency = bidTotalAmountInBaseCurrency;
         return this;
     }
 
-    public TestingMarketBuilder time(Long time) {
+    public TestingMarketBuilder<K> time(Long time) {
         this.time = time;
         return this;
     }
 
-    public TestingMarketBuilder withBidOffer(DoubleWrapper price, double amount, int changesCount, double changesAmount) {
+    public TestingMarketBuilder<K> withBidOffer(DoubleWrapper price, double amount, int changesCount, double changesAmount) {
         bidOffers.put(price, amount);
         bidChangesAmount.put(price, changesAmount);
         bidChangesCount.put(price, changesCount);
         return this;
     }
 
-    public TestingMarketBuilder withAskOffer(DoubleWrapper price, double amount, int changesCount, double changesAmount) {
+    public TestingMarketBuilder<K> withAskOffer(DoubleWrapper price, double amount, int changesCount, double changesAmount) {
         askOffers.put(price, amount);
         askChangesAmount.put(price, changesAmount);
         askChangesCount.put(price, changesCount);
         return this;
     }
 
-    public TestingMarketBuilder withStockEvent(StockEvent stockEvent) {
+    public TestingMarketBuilder<K> withStockEvent(StockEvent stockEvent) {
         eventByType.put(stockEvent.getType(), stockEvent);
         return this;
     }
 
-    public TestingMarketBuilder withPriceSummary(PriceSummary priceSummary) {
+    public TestingMarketBuilder<K> withPriceSummary(PriceSummary priceSummary) {
         this.priceSummary = priceSummary;
         return this;
     }
 
-    public Market build() {
-        return new Market() {
+    public Market<K> build() {
+        return new Market<K>() {
+            @Override
+            public K getKey() {
+                return key;
+            }
+
             @Override
             public OrderBook getAsk() {
                 return buildAskOrderBook();

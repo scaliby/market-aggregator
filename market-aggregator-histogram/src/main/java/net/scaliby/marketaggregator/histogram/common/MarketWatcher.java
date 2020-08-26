@@ -7,7 +7,7 @@ import net.scaliby.marketaggregator.core.market.Market;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MarketWatcher {
+public class MarketWatcher<K> {
 
     @Getter
     private final String base;
@@ -28,7 +28,7 @@ public class MarketWatcher {
         this.bids = new ArrayList<>(size);
     }
 
-    public void tick(Market market) {
+    public void tick(Market<K> market) {
         MarketDepthCalculator askCalculator = new MarketDepthCalculator(market.getAsk());
         MarketDepthCalculator bidCalculator = new MarketDepthCalculator(market.getBid());
         DoubleWrapper step = DoubleWrapper.ONE;

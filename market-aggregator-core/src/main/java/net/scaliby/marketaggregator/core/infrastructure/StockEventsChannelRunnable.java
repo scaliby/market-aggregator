@@ -15,7 +15,7 @@ public class StockEventsChannelRunnable<K, T> implements ChannelRunnable<K> {
     @Getter
     private final K channel;
     private final List<StockEvent> events;
-    private final StockEventsHandler<T> eventsHandler;
+    private final StockEventsHandler<K, T> eventsHandler;
     private final DataHandler<T> dataHandler;
 
     @Override

@@ -13,15 +13,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RequiredArgsConstructor
-public class MarketSnapshotMarketHandler implements MarketHandler<List<MarketSnapshot>> {
+public class MarketSnapshotMarketHandler<K> implements MarketHandler<K, List<MarketSnapshot>> {
 
     private final Integer size;
     private final boolean emitOnlyOnTrade;
 
-    private List<MarketWatcher> watchers = new ArrayList<>();
+    private final List<MarketWatcher<K>> watchers = new ArrayList<>();
 
     @Override
-    public List<MarketSnapshot> handle(Market market) {
+    public List<MarketSnapshot> handle(Market<K> market) {
         addWatcherIfMarketHasTransaction(market);
         tickWatchers(market);
         List<MarketSnapshot> result = getSnapshots(market);
@@ -29,24 +29,24 @@ public class MarketSnapshotMarketHandler implements MarketHandler<List<MarketSna
         return result;
     }
 
-    private void addWatcherIfMarketHasTransaction(Market market) {
+    private void addWatcherIfMarketHasTransaction(Market<K> market) {
         getLastBuySellEvent(market)
                 .map(this::getWatcher)
                 .ifPresent(watchers::add);
     }
 
-    private MarketWatcher getWatcher(StockEvent stockEvent) {
+    private MarketWatcher<K> getWatcher(StockEvent stockEvent) {
         String base = stockEvent.getBase();
         String quote = stockEvent.getQuote();
         DoubleWrapper startingPrice = stockEvent.getPrice();
-        return new MarketWatcher(base, quote, startingPrice, size);
+        return new MarketWatcher<>(base, quote, startingPrice, size);
     }
 
-    private void tickWatchers(Market market) {
+    private void tickWatchers(Market<K> market) {
         watchers.forEach(watcher -> watcher.tick(market));
     }
 
-    private void cleanUpCompletedWatchersIfMarketHasTransaction(Market market) {
+    private void cleanUpCompletedWatchersIfMarketHasTransaction(Market<K> market) {
         getLastBuySellEvent(market)
                 .map(StockEvent::getPrice)
                 .map(a -> getCompletedWatchers())
@@ -54,7 +54,7 @@ public class MarketSnapshotMarketHandler implements MarketHandler<List<MarketSna
                 .ifPresent(watchers::removeAll);
     }
 
-    private List<MarketSnapshot> getSnapshots(Market market) {
+    private List<MarketSnapshot> getSnapshots(Market<K> market) {
         return getLastBuySellEvent(market)
                 .map(StockEvent::getPrice)
                 .map(price -> getSnapshotsForCompletedWatchers(market, price))
@@ -63,7 +63,7 @@ public class MarketSnapshotMarketHandler implements MarketHandler<List<MarketSna
                 .collect(Collectors.toList());
     }
 
-    private Stream<MarketSnapshot> getSnapshotsForCompletedWatchers(Market market, DoubleWrapper currentPrice) {
+    private Stream<MarketSnapshot> getSnapshotsForCompletedWatchers(Market<K> market, DoubleWrapper currentPrice) {
         return getCompletedWatchers()
                 .map(watcher -> MarketSnapshot.of(
                         watcher.getBase(),
@@ -76,7 +76,7 @@ public class MarketSnapshotMarketHandler implements MarketHandler<List<MarketSna
                 ));
     }
 
-    private Stream<MarketSnapshot> getSnapshotsForCompletedWatchers(Market market) {
+    private Stream<MarketSnapshot> getSnapshotsForCompletedWatchers(Market<K> market) {
         return getCompletedWatchers()
                 .map(watcher -> MarketSnapshot.of(
                         watcher.getBase(),
@@ -89,12 +89,12 @@ public class MarketSnapshotMarketHandler implements MarketHandler<List<MarketSna
                 ));
     }
 
-    private Stream<MarketWatcher> getCompletedWatchers() {
+    private Stream<MarketWatcher<K>> getCompletedWatchers() {
         return watchers.stream()
                 .filter(MarketWatcher::isCompleted);
     }
 
-    private Optional<StockEvent> getLastBuySellEvent(Market market) {
+    private Optional<StockEvent> getLastBuySellEvent(Market<K> market) {
         return Stream.of("SELL", "BUY")
                 .map(market::getLastEvent)
                 .filter(Objects::nonNull)

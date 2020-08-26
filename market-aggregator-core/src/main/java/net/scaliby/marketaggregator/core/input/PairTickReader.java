@@ -25,7 +25,7 @@ public class PairTickReader<K> {
         Map<K, List<StockEvent>> result = new HashMap<>();
         while (nextEvent != null && nextEvent.getSequence().equals(currentSequence)) {
             K key = keyResolver.getKey(nextEvent);
-            result.computeIfAbsent(key, (a) -> new ArrayList<>()).add(nextEvent);
+            result.computeIfAbsent(key, a -> new ArrayList<>()).add(nextEvent);
             nextEvent = stockEventReader.read();
         }
         return result.entrySet().stream()
