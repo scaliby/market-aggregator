@@ -2,4 +2,5 @@ rootProject.name = 'market-aggregator'
 include 'market-aggregator-core'
 include 'market-aggregator-histogram'
 include 'market-aggregator-average-price'
+include 'market-aggregator-simple-histogram'
 
